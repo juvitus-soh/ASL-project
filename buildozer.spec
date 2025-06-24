@@ -16,7 +16,6 @@ orientation = portrait
 android.permissions = CAMERA, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, INTERNET, RECORD_AUDIO, MODIFY_AUDIO_SETTINGS
 android.private_storage = False
 android.ndk = 25b
-#android.sdk = 33
 android.api = 33
 android.minapi = 21
 android.enable_androidx = True
