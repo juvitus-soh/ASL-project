@@ -40,17 +40,70 @@ jobs:
     
     - name: Build APK with expect to handle license prompts
       run: |
-        expect << 'EOF'
+        # Create expect script to handle licenses and capture output
+        cat > build_with_expect.sh << 'EOF'
+        #!/bin/bash
+        set -e  # Exit on any error
+        
+        expect << 'EXPECT_EOF'
         set timeout 7200
+        log_user 1
         spawn buildozer android debug
         expect {
-          "Accept? (y/N):" { send "y\r"; exp_continue }
-          "Do you accept the license" { send "y\r"; exp_continue }
-          "(y/N)" { send "y\r"; exp_continue }
-          eof { exit }
-          timeout { exit 1 }
+          "Accept? (y/N):" { 
+            send "y\r"
+            exp_continue 
+          }
+          "Do you accept the license" { 
+            send "y\r"
+            exp_continue 
+          }
+          "(y/N)" { 
+            send "y\r"
+            exp_continue 
+          }
+          "# Build failed:" {
+            puts "BUILD FAILED!"
+            exit 1
+          }
+          "BUILD SUCCESSFUL" {
+            puts "Build completed successfully"
+            exit 0
+          }
+          eof {
+            puts "Build process ended"
+            exit 0
+          }
+          timeout { 
+            puts "Build timed out after 2 hours"
+            exit 1 
+          }
         }
+        EXPECT_EOF
         EOF
+        
+        chmod +x build_with_expect.sh
+        ./build_with_expect.sh
+    
+    - name: Check build results and debug
+      run: |
+        echo "=== BUILD RESULTS ==="
+        echo "Checking bin directory:"
+        ls -la bin/ || echo "bin/ directory doesn't exist"
+        
+        echo "Checking for any APK files in project:"
+        find . -name "*.apk" -type f || echo "No APK files found anywhere"
+        
+        echo "Checking buildozer logs:"
+        if [ -f .buildozer/android/platform/build-*/*.log ]; then
+          echo "Last 50 lines of build log:"
+          tail -50 .buildozer/android/platform/build-*/*.log
+        fi
+        
+        echo "Checking for errors in recent logs:"
+        if [ -d .buildozer ]; then
+          find .buildozer -name "*.log" -mtime -1 -exec echo "=== {} ===" \; -exec tail -20 {} \;
+        fi
     
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
