@@ -74,13 +74,30 @@ jobs:
       run: |
         echo "Starting buildozer build..."
         
-        # Set environment variables for auto-acceptance
-        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
-        export ANDROID_HOME=$ANDROID_SDK_ROOT
+        # Set environment variables to handle all prompts automatically
         export ANDROID_SDK_ACCEPT_LICENSES=y
+        export JAVA_OPTS='-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee'
         
-        # Start the build with license auto-acceptance
-        yes | buildozer android debug 2>&1 | tee build_full.log
+        # Use expect to handle all interactive prompts
+        sudo apt-get install -y expect
+        
+        # Create expect script to handle license prompts
+        cat > build_script.exp << 'EOF'
+        #!/usr/bin/expect -f
+        set timeout -1
+        spawn buildozer android debug
+        expect {
+            "Accept? (y/N):" { send "y\r"; exp_continue }
+            "Do you accept the license" { send "y\r"; exp_continue }
+            "Accept (y/N)?" { send "y\r"; exp_continue }
+            eof
+        }
+        EOF
+        
+        chmod +x build_script.exp
+        
+        # Run the build with expect to handle prompts
+        ./build_script.exp 2>&1 | tee build_full.log
         BUILD_EXIT_CODE=${PIPESTATUS[0]}
         
         echo "Build exit code: $BUILD_EXIT_CODE"
@@ -90,14 +107,11 @@ jobs:
           echo "✅ BUILD SUCCESSFUL!"
         else
           echo "❌ BUILD FAILED!"
-          echo "=== LAST 100 LINES OF BUILD LOG ==="
-          tail -100 build_full.log
+          echo "=== LAST 50 LINES OF BUILD LOG ==="
+          tail -50 build_full.log
           
-          echo "=== CHECKING FOR LICENSE ISSUES ==="
-          grep -i "license\|accept" build_full.log | tail -20
-          
-          echo "=== ANDROID SDK STATUS ==="
-          ls -la /home/runner/.buildozer/android/platform/android-sdk/ || echo "SDK directory not found"
+          echo "=== CHECKING FOR COMMON ISSUES ==="
+          grep -i "error\|failed\|exception" build_full.log | tail -10
           
           exit 1
         fi
