@@ -1,0 +1,26 @@
+# app/kv/widgets.kv
+# Custom widget layouts
+
+<PredictionPanel>:
+    canvas.before:
+        Color:
+            rgba: 0.9, 0.9, 0.9, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<ConfidenceBar>:
+    canvas.before:
+        Color:
+            rgba: 0.8, 0.8, 0.8, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<WordBuilder>:
+    canvas.before:
+        Color:
+            rgba: 0.95, 0.95, 0.95, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size

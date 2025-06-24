@@ -1,0 +1,30 @@
+# ASL Recognition Mobile App - Dependencies
+# Core mobile framework
+kivy>=2.1.0
+kivymd>=1.1.1
+
+# Machine learning and computer vision
+tensorflow>=2.10.0
+opencv-python>=4.8.0
+numpy>=1.21.0
+
+# Audio and speech
+pyttsx3>=2.90
+
+# Mobile platform features
+plyer>=2.1.0
+
+# Android building (development only)
+buildozer>=1.5.0
+cython>=0.29.0
+
+# Optional: Better image handling
+pillow>=9.0.0
+
+# Development dependencies
+pytest>=7.0.0
+black>=22.0.0
+
+# Android-specific (installed automatically by buildozer)
+# pyjnius (for Android Java integration)
+# python-for-android

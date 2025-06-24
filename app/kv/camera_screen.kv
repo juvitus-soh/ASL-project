@@ -1,0 +1,100 @@
+# app/kv/camera_screen.kv
+# Camera screen layout
+
+<CameraScreen>:
+    name: 'camera'
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        # Top bar with back button
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.08
+            padding: 10
+            spacing: 10
+
+            Button:
+                text: '← Back'
+                size_hint_x: 0.2
+                background_color: 0.5, 0.5, 0.5, 1
+                on_press: root.manager.current = 'home'
+
+            Label:
+                text: 'ASL Recognition - Camera'
+                font_size: '18sp'
+                color: 0.13, 0.59, 0.95, 1
+
+            Button:
+                text: '⚙️'
+                size_hint_x: 0.15
+                background_color: 0.5, 0.5, 0.5, 1
+                on_press: root.manager.current = 'settings'
+
+        # Camera and prediction area
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.7
+
+            # Camera view
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.6
+
+                Widget:
+                    id: camera_container
+                    size_hint_y: 0.85
+
+                Label:
+                    text: 'Position your hand in the green square'
+                    size_hint_y: 0.15
+                    font_size: '12sp'
+                    color: 0.6, 0.6, 0.6, 1
+
+            # Prediction panel
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.4
+                padding: 10
+                spacing: 10
+
+                Label:
+                    text: 'Prediction'
+                    font_size: '18sp'
+                    size_hint_y: 0.1
+                    color: 0.13, 0.59, 0.95, 1
+
+                Widget:
+                    id: prediction_panel
+                    size_hint_y: 0.4
+
+                Widget:
+                    id: confidence_bar
+                    size_hint_y: 0.1
+
+                Widget:
+                    id: word_builder
+                    size_hint_y: 0.4
+
+        # Control buttons
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.12
+            padding: 10
+            spacing: 10
+
+            Button:
+                text: 'Start Camera'
+                id: camera_btn
+                background_color: 0.3, 0.69, 0.31, 1
+                on_press: root.toggle_camera()
+
+            Button:
+                text: 'Speak'
+                background_color: 0.13, 0.59, 0.95, 1
+                on_press: root.speak_current()
+
+            Button:
+                text: 'Clear'
+                background_color: 0.96, 0.26, 0.21, 1
+                on_press: root.clear_all()

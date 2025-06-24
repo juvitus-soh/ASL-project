@@ -1,0 +1,11 @@
+{
+  "confidence_threshold": 0.75,
+  "prediction_smoothing": true,
+  "auto_word_completion": true,
+  "letter_hold_time": 1.5,
+  "speech_enabled": true,
+  "speech_rate": 150,
+  "speech_volume": 0.8,
+  "camera_resolution": "640x480",
+  "save_predictions": true
+}

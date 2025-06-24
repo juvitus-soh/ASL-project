@@ -1,0 +1,14 @@
+# Android APK Requirements
+# These are handled by buildozer.spec, but listed here for reference
+
+kivy==2.1.0
+numpy
+pillow
+plyer
+android
+
+# Desktop development requirements (not needed for APK)
+# opencv-python-headless
+# tensorflow
+# pyttsx3
+# pywin32

@@ -1,0 +1,115 @@
+# app/kv/settings_screen.kv
+# Settings screen layout
+
+<SettingsScreen>:
+    name: 'settings'
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 15
+
+        # Header
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.1
+
+            Button:
+                text: '← Back'
+                size_hint_x: 0.2
+                background_color: 0.5, 0.5, 0.5, 1
+                on_press: root.manager.current = 'home'
+
+            Label:
+                text: 'Settings'
+                font_size: '24sp'
+                color: 0.13, 0.59, 0.95, 1
+
+        ScrollView:
+            size_hint_y: 0.9
+
+            GridLayout:
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 20
+
+                # Confidence threshold
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: 80
+
+                    Label:
+                        text: 'Confidence Threshold'
+                        font_size: '16sp'
+                        size_hint_y: 0.4
+                        color: 0.2, 0.2, 0.2, 1
+
+                    Slider:
+                        id: confidence_slider
+                        min: 0.3
+                        max: 0.95
+                        value: 0.75
+                        step: 0.05
+                        size_hint_y: 0.6
+                        on_value: root.on_confidence_change(self.value)
+
+                # Speech settings
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: 50
+
+                    Label:
+                        text: 'Enable Speech'
+                        font_size: '16sp'
+                        color: 0.2, 0.2, 0.2, 1
+
+                    CheckBox:
+                        id: speech_checkbox
+                        active: True
+                        size_hint_x: 0.2
+                        on_active: root.on_speech_toggle(self.active)
+
+                # Auto word completion
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: 50
+
+                    Label:
+                        text: 'Auto Word Completion'
+                        font_size: '16sp'
+                        color: 0.2, 0.2, 0.2, 1
+
+                    CheckBox:
+                        id: auto_completion_checkbox
+                        active: True
+                        size_hint_x: 0.2
+                        on_active: root.on_auto_completion_toggle(self.active)
+
+                # Prediction smoothing
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: 50
+
+                    Label:
+                        text: 'Prediction Smoothing'
+                        font_size: '16sp'
+                        color: 0.2, 0.2, 0.2, 1
+
+                    CheckBox:
+                        id: smoothing_checkbox
+                        active: True
+                        size_hint_x: 0.2
+                        on_active: root.on_smoothing_toggle(self.active)
+
+                # Save button
+                Button:
+                    text: 'Save Settings'
+                    size_hint_y: None
+                    height: 50
+                    background_color: 0.3, 0.69, 0.31, 1
+                    on_press: root.save_settings()

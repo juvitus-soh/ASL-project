@@ -1,0 +1,57 @@
+# app/kv/home_screen.kv
+# Home screen layout
+
+<HomeScreen>:
+    name: 'home'
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 20
+
+        Label:
+            text: 'ASL Recognition'
+            font_size: '32sp'
+            size_hint_y: 0.2
+            color: 0.13, 0.59, 0.95, 1
+
+        Label:
+            text: 'Real-time American Sign Language Recognition'
+            font_size: '16sp'
+            size_hint_y: 0.1
+            color: 0.4, 0.4, 0.4, 1
+
+        GridLayout:
+            cols: 2
+            spacing: 15
+            size_hint_y: 0.6
+
+            Button:
+                text: '📷\nStart Recognition'
+                font_size: '18sp'
+                background_color: 0.13, 0.59, 0.95, 1
+                on_press: root.manager.current = 'camera'
+
+            Button:
+                text: '📚\nTutorial'
+                font_size: '18sp'
+                background_color: 1, 0.6, 0.13, 1
+                on_press: root.manager.current = 'tutorial'
+
+            Button:
+                text: '⚙️\nSettings'
+                font_size: '18sp'
+                background_color: 0.5, 0.5, 0.5, 1
+                on_press: root.manager.current = 'settings'
+
+            Button:
+                text: '📊\nHistory'
+                font_size: '18sp'
+                background_color: 0.3, 0.69, 0.31, 1
+                on_press: root.manager.current = 'history'
+
+        Label:
+            text: 'Place your hand in the camera view and make ASL signs'
+            font_size: '14sp'
+            size_hint_y: 0.1
+            color: 0.6, 0.6, 0.6, 1

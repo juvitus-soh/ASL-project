@@ -1,0 +1,61 @@
+2025-06-23 21:42:29,354 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 21:42:29,355 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 21:42:56,049 - ASLMobileApp - CRITICAL - Critical error: 'ASLMobileApp' object has no attribute 'speak_current_sentence'
+2025-06-23 21:48:51,935 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 21:48:51,936 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 21:49:31,114 - ASLMobileApp - CRITICAL - Critical error: 'ASLMobileApp' object has no attribute 'switch_screen'
+2025-06-23 21:51:55,233 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 21:51:55,235 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 21:53:27,101 - ASLMobileApp - CRITICAL - Critical error: No Screen with name "home".
+2025-06-23 21:54:38,637 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 21:54:38,639 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 21:54:52,036 - ASLMobileApp - CRITICAL - Critical error: No Screen with name "home".
+2025-06-23 22:15:51,731 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 22:15:51,732 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 22:16:26,930 - ASLMobileApp - INFO - ASL Mobile App stopped
+2025-06-23 22:23:44,340 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 22:23:44,342 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 22:23:57,497 - ASLMobileApp - CRITICAL - Critical error: No Screen with name "home".
+2025-06-23 22:49:28,851 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 22:49:28,855 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 22:51:11,952 - ASLMobileApp - INFO - Speaking: XTWQG
+2025-06-23 22:57:12,768 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 22:57:12,769 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 23:01:10,097 - ASLMobileApp - INFO - ASL Mobile App stopped
+2025-06-23 23:01:26,687 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 23:01:26,688 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 23:07:08,189 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 23:07:08,190 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 23:08:29,484 - ASLMobileApp - INFO - Speaking: CNJGJOWGM
+2025-06-23 23:08:36,744 - ASLMobileApp - INFO - Speaking: CNJGJOWGMFB
+2025-06-23 23:09:46,818 - ASLMobileApp - INFO - Speaking: Word: CNJGJOWGMFB
+2025-06-23 23:09:49,364 - ASLMobileApp - INFO - Speaking: CNJGJOWGMFB
+2025-06-23 23:09:53,210 - ASLMobileApp - INFO - ASL Mobile App stopped
+2025-06-23 23:14:14,507 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 23:14:14,508 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 23:15:13,047 - ASLMobileApp - INFO - Speaking: ANEARDH
+2025-06-23 23:24:01,895 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-23 23:24:01,896 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-23 23:25:18,271 - ASLMobileApp - INFO - Speaking: Word: OYCYNXROVGI
+2025-06-23 23:25:23,258 - ASLMobileApp - INFO - Speaking: OYCYNXROVGI C
+2025-06-24 00:35:28,613 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-24 00:35:28,615 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-24 00:36:21,081 - ASLMobileApp - INFO - ASL Mobile App stopped
+2025-06-24 00:47:52,935 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-24 00:47:52,936 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-24 00:49:05,400 - ASLMobileApp - INFO - ASL Mobile App stopped
+2025-06-24 01:10:36,262 - ASLMobileApp - ERROR - Error initializing components: 'SpeechEngine' object has no attribute 'update_settings'
+2025-06-24 01:10:36,342 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-24 01:10:36,343 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-24 01:11:09,482 - ASLMobileApp - INFO - Speaking: BGCNP
+2025-06-24 01:11:14,269 - ASLMobileApp - INFO - Speaking: Word: BGCNPK
+2025-06-24 01:11:17,698 - ASLMobileApp - INFO - Speaking: BGCNPK R
+2025-06-24 01:13:00,117 - ASLMobileApp - INFO - Speaking: AYMGQNC
+2025-06-24 01:13:03,219 - ASLMobileApp - INFO - Speaking: AYMGQNC
+2025-06-24 01:13:13,553 - ASLMobileApp - INFO - ASL Mobile App stopped
+2025-06-24 01:17:02,523 - ASLMobileApp - ERROR - Error initializing components: 'SpeechEngine' object has no attribute 'update_settings'
+2025-06-24 01:17:02,575 - ASLMobileApp - INFO - ASL Mobile App built successfully
+2025-06-24 01:17:02,577 - ASLMobileApp - INFO - ASL Mobile App started
+2025-06-24 01:18:10,817 - ASLMobileApp - INFO - Speaking: CBFAD
+2025-06-24 01:18:13,690 - ASLMobileApp - INFO - Speaking: CBFADT
+2025-06-24 01:18:15,603 - ASLMobileApp - INFO - Speaking: CBFADT
