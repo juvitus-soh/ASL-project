@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y build-essential git unzip expect
+        sudo apt install -y build-essential git unzip
         sudo apt install -y autoconf automake libtool pkg-config
         sudo apt install -y zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev
         sudo apt install -y libreadline-dev libsqlite3-dev libssl-dev libffi-dev
@@ -38,83 +38,71 @@ jobs:
         pip install buildozer
         pip install cython==0.29.33
     
-    - name: Build APK with expect to handle license prompts
+    - name: Debug project structure
       run: |
-        # Create expect script to handle licenses and capture output
-        cat > build_with_expect.sh << 'EOF'
-        #!/bin/bash
-        set -e  # Exit on any error
-        
-        expect << 'EXPECT_EOF'
-        set timeout 7200
-        log_user 1
-        spawn buildozer android debug
-        expect {
-          "Accept? (y/N):" { 
-            send "y\r"
-            exp_continue 
-          }
-          "Do you accept the license" { 
-            send "y\r"
-            exp_continue 
-          }
-          "(y/N)" { 
-            send "y\r"
-            exp_continue 
-          }
-          "# Build failed:" {
-            puts "BUILD FAILED!"
-            exit 1
-          }
-          "BUILD SUCCESSFUL" {
-            puts "Build completed successfully"
-            exit 0
-          }
-          eof {
-            puts "Build process ended"
-            exit 0
-          }
-          timeout { 
-            puts "Build timed out after 2 hours"
-            exit 1 
-          }
-        }
-        EXPECT_EOF
-        EOF
-        
-        chmod +x build_with_expect.sh
-        ./build_with_expect.sh
+        echo "=== PROJECT STRUCTURE ==="
+        ls -la
+        echo "=== BUILDOZER SPEC CONTENT ==="
+        cat buildozer.spec || echo "buildozer.spec not found"
+        echo "=== PYTHON FILES ==="
+        find . -name "*.py" | head -10
     
-    - name: Check build results and debug
+    - name: Build APK with detailed logging
       run: |
-        echo "=== BUILD RESULTS ==="
-        echo "Checking bin directory:"
-        ls -la bin/ || echo "bin/ directory doesn't exist"
+        echo "Starting buildozer build..."
         
-        echo "Checking for any APK files in project:"
-        find . -name "*.apk" -type f || echo "No APK files found anywhere"
+        # Create a simple script to handle the license prompt
+        (
+          sleep 5
+          while true; do
+            echo "y"
+            sleep 2
+          done
+        ) &
+        LICENSE_PID=$!
         
-        echo "Checking buildozer logs:"
-        if [ -f .buildozer/android/platform/build-*/*.log ]; then
-          echo "Last 50 lines of build log:"
-          tail -50 .buildozer/android/platform/build-*/*.log
+        # Start the build with full logging
+        buildozer android debug 2>&1 | tee build_full.log
+        BUILD_EXIT_CODE=${PIPESTATUS[0]}
+        
+        # Kill the license acceptance process
+        kill $LICENSE_PID 2>/dev/null || true
+        
+        echo "Build exit code: $BUILD_EXIT_CODE"
+        
+        # Check results
+        if [ $BUILD_EXIT_CODE -eq 0 ] && [ -f bin/*.apk 2>/dev/null ]; then
+          echo "✅ BUILD SUCCESSFUL!"
+        else
+          echo "❌ BUILD FAILED!"
+          echo "=== LAST 100 LINES OF BUILD LOG ==="
+          tail -100 build_full.log
+          exit 1
         fi
+    
+    - name: List build output
+      run: |
+        echo "=== BIN DIRECTORY ==="
+        ls -la bin/ || echo "bin/ directory not found"
         
-        echo "Checking for errors in recent logs:"
-        if [ -d .buildozer ]; then
-          find .buildozer -name "*.log" -mtime -1 -exec echo "=== {} ===" \; -exec tail -20 {} \;
-        fi
+        echo "=== SEARCHING FOR APK FILES ==="
+        find . -name "*.apk" -type f | while read apk; do
+          echo "Found APK: $apk"
+          ls -lh "$apk"
+        done || echo "No APK files found"
     
     - name: Upload APK artifact
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: ASL-Mobile-App-APK
         path: bin/*.apk
         retention-days: 30
     
-    - name: List build output
-      run: |
-        echo "Build completed successfully!"
-        ls -la bin/
-        echo "APK size:"
-        du -h bin/*.apk
+    - name: Upload build logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs
+        path: build_full.log
+        retention-days: 7
