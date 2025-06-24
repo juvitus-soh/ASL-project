@@ -37,46 +37,45 @@ jobs:
         pip install --upgrade pip
         pip install cython==0.29.33 buildozer
 
-    - name: Install Android SDK Command Line Tools
+    - name: Install Android SDK and required packages
       run: |
+        mkdir -p $HOME/.android
         mkdir -p $HOME/android-sdk/cmdline-tools
         cd $HOME/android-sdk/cmdline-tools
         curl -O https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
         unzip commandlinetools-linux-*.zip
         mv cmdline-tools latest
+        export ANDROID_SDK_ROOT=$HOME/android-sdk
+        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
+        yes | sdkmanager --licenses
+        sdkmanager --update
+        sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
+
+        # Move SDK to Buildozer expected location
         mkdir -p $HOME/.buildozer/android/platform
         mv $HOME/android-sdk $HOME/.buildozer/android/platform/android-sdk
-        export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
-        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses
-        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --update
-        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} \
-          "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
-    - name: Debug project structure
+    - name: Debug project
       run: |
-        echo "=== PROJECT STRUCTURE ==="
-        ls -la
-        echo "=== BUILDOZER SPEC CONTENT ==="
-        cat buildozer.spec || echo "buildozer.spec not found"
-        echo "=== PYTHON FILES ==="
-        find . -name "*.py" | head -10
+        echo "=== buildozer.spec ==="
+        cat buildozer.spec || echo "Missing buildozer.spec"
+        echo "=== project structure ==="
+        tree -L 2 || ls -la
 
     - name: Build APK
       run: |
         export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
         buildozer android debug
 
     - name: List build output
       run: |
         echo "=== BIN DIRECTORY ==="
         ls -la bin/ || echo "bin/ directory not found"
-        echo "=== APK FILES FOUND ==="
-        find . -name "*.apk" -type f | while read apk; do
-          echo "Found APK: $apk"
-          ls -lh "$apk"
-        done || echo "No APK files found"
+        echo "=== APK FILES ==="
+        find . -name "*.apk" -type f || echo "No APKs found"
 
-    - name: Upload APK artifact
+    - name: Upload APK
       if: success()
       uses: actions/upload-artifact@v4
       with:
@@ -84,7 +83,7 @@ jobs:
         path: bin/*.apk
         retention-days: 30
 
-    - name: Upload build logs (if any)
+    - name: Upload logs
       if: always()
       uses: actions/upload-artifact@v4
       with:
