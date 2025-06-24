@@ -39,32 +39,22 @@ jobs:
 
     - name: Install Android SDK and required packages
       run: |
-        mkdir -p $HOME/.android
         mkdir -p $HOME/android-sdk/cmdline-tools
         cd $HOME/android-sdk/cmdline-tools
         curl -O https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
         unzip commandlinetools-linux-*.zip
         mv cmdline-tools latest
+
         export ANDROID_SDK_ROOT=$HOME/android-sdk
         export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
+
         yes | sdkmanager --licenses
         sdkmanager --update
         sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
 
-        # Move SDK to Buildozer expected location
-        mkdir -p $HOME/.buildozer/android/platform
-        mv $HOME/android-sdk $HOME/.buildozer/android/platform/android-sdk
-
-    - name: Debug project
-      run: |
-        echo "=== buildozer.spec ==="
-        cat buildozer.spec || echo "Missing buildozer.spec"
-        echo "=== project structure ==="
-        tree -L 2 || ls -la
-
     - name: Build APK
       run: |
-        export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+        export ANDROID_SDK_ROOT=$HOME/android-sdk
         export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
         buildozer android debug
 
@@ -82,11 +72,3 @@ jobs:
         name: ASL-Mobile-App-APK
         path: bin/*.apk
         retention-days: 30
-
-    - name: Upload logs
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-logs
-        path: .buildozer/android/platform/python-for-android/build/other_builds/*/build.log
-        retention-days: 7
