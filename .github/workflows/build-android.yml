@@ -1,4 +1,5 @@
 name: Build Android APK
+
 on:
   push:
     branches: [ main ]
@@ -7,60 +8,50 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-    
+
     - name: Set up Java
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
-    
+
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y build-essential git unzip
-        sudo apt install -y autoconf automake libtool pkg-config
-        sudo apt install -y zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev
-        sudo apt install -y libreadline-dev libsqlite3-dev libssl-dev libffi-dev
-    
+        sudo apt install -y build-essential git unzip expect \
+          autoconf automake libtool pkg-config zlib1g-dev \
+          libncurses5-dev libgdbm-dev libnss3-dev \
+          libreadline-dev libsqlite3-dev libssl-dev libffi-dev
+
     - name: Install Python dependencies
       run: |
         pip install --upgrade pip
-        pip install buildozer
-        pip install cython==0.29.33
-    
-    - name: Accept Android SDK licenses
+        pip install cython==0.29.33 buildozer
+
+    - name: Install Android SDK Command Line Tools
       run: |
-        echo "Pre-accepting Android SDK licenses..."
-        # Set environment variable to auto-accept licenses
-        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
-        
-        # Create the licenses directory and accept all licenses
-        mkdir -p $ANDROID_SDK_ROOT/licenses
-        
-        # Accept all common Android SDK licenses
-        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        
-        # Accept build-tools license
-        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
-        
-        # Accept Google licenses
-        echo "79120722343a6f314e0719f863036c702b0e6b2a" > $ANDROID_SDK_ROOT/licenses/android-googletv-license
-        echo "601085b94cd77f0b54ff86406957099ebe79c4d6" > $ANDROID_SDK_ROOT/licenses/google-gdk-license
-        echo "33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > $ANDROID_SDK_ROOT/licenses/google-gdk-license
-        
-        echo "Android SDK licenses pre-accepted"
-    
+        mkdir -p $HOME/android-sdk/cmdline-tools
+        cd $HOME/android-sdk/cmdline-tools
+        curl -O https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+        unzip commandlinetools-linux-*.zip
+        mv cmdline-tools latest
+        mkdir -p $HOME/.buildozer/android/platform
+        mv $HOME/android-sdk $HOME/.buildozer/android/platform/android-sdk
+        export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --update
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} \
+          "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+
     - name: Debug project structure
       run: |
         echo "=== PROJECT STRUCTURE ==="
@@ -69,64 +60,22 @@ jobs:
         cat buildozer.spec || echo "buildozer.spec not found"
         echo "=== PYTHON FILES ==="
         find . -name "*.py" | head -10
-    
-    - name: Build APK with detailed logging
+
+    - name: Build APK
       run: |
-        echo "Starting buildozer build..."
-        
-        # Set environment variables to handle all prompts automatically
-        export ANDROID_SDK_ACCEPT_LICENSES=y
-        export JAVA_OPTS='-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee'
-        
-        # Use expect to handle all interactive prompts
-        sudo apt-get install -y expect
-        
-        # Create expect script to handle license prompts
-        cat > build_script.exp << 'EOF'
-        #!/usr/bin/expect -f
-        set timeout -1
-        spawn buildozer android debug
-        expect {
-            "Accept? (y/N):" { send "y\r"; exp_continue }
-            "Do you accept the license" { send "y\r"; exp_continue }
-            "Accept (y/N)?" { send "y\r"; exp_continue }
-            eof
-        }
-        EOF
-        
-        chmod +x build_script.exp
-        
-        # Run the build with expect to handle prompts
-        ./build_script.exp 2>&1 | tee build_full.log
-        BUILD_EXIT_CODE=${PIPESTATUS[0]}
-        
-        echo "Build exit code: $BUILD_EXIT_CODE"
-        
-        # Check results
-        if [ $BUILD_EXIT_CODE -eq 0 ] && [ -f bin/*.apk 2>/dev/null ]; then
-          echo "✅ BUILD SUCCESSFUL!"
-        else
-          echo "❌ BUILD FAILED!"
-          echo "=== LAST 50 LINES OF BUILD LOG ==="
-          tail -50 build_full.log
-          
-          echo "=== CHECKING FOR COMMON ISSUES ==="
-          grep -i "error\|failed\|exception" build_full.log | tail -10
-          
-          exit 1
-        fi
-    
+        export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+        buildozer android debug
+
     - name: List build output
       run: |
         echo "=== BIN DIRECTORY ==="
         ls -la bin/ || echo "bin/ directory not found"
-        
-        echo "=== SEARCHING FOR APK FILES ==="
+        echo "=== APK FILES FOUND ==="
         find . -name "*.apk" -type f | while read apk; do
           echo "Found APK: $apk"
           ls -lh "$apk"
         done || echo "No APK files found"
-    
+
     - name: Upload APK artifact
       if: success()
       uses: actions/upload-artifact@v4
@@ -134,11 +83,11 @@ jobs:
         name: ASL-Mobile-App-APK
         path: bin/*.apk
         retention-days: 30
-    
-    - name: Upload build logs
+
+    - name: Upload build logs (if any)
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: build-logs
-        path: build_full.log
+        path: .buildozer/android/platform/python-for-android/build/other_builds/*/build.log
         retention-days: 7
