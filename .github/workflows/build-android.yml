@@ -1,0 +1,57 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential git unzip
+        sudo apt install -y autoconf automake libtool pkg-config
+        sudo apt install -y zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev
+        sudo apt install -y libreadline-dev libsqlite3-dev libssl-dev libffi-dev
+
+    - name: Install Python dependencies
+      run: |
+        pip install --upgrade pip
+        pip install buildozer
+        pip install cython==0.29.33
+
+    - name: Build APK with Buildozer
+      run: |
+        buildozer android debug
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ASL-Mobile-App-APK
+        path: bin/*.apk
+        retention-days: 30
+
+    - name: List build output
+      run: |
+        echo "Build completed successfully!"
+        ls -la bin/
+        echo "APK size:"
+        du -h bin/*.apk
