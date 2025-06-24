@@ -1,5 +1,4 @@
 name: Build Android APK
-
 on:
   push:
     branches: [ main ]
@@ -38,6 +37,30 @@ jobs:
         pip install buildozer
         pip install cython==0.29.33
     
+    - name: Accept Android SDK licenses
+      run: |
+        echo "Pre-accepting Android SDK licenses..."
+        # Set environment variable to auto-accept licenses
+        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
+        
+        # Create the licenses directory and accept all licenses
+        mkdir -p $ANDROID_SDK_ROOT/licenses
+        
+        # Accept all common Android SDK licenses
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        
+        # Accept build-tools license
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
+        
+        # Accept Google licenses
+        echo "79120722343a6f314e0719f863036c702b0e6b2a" > $ANDROID_SDK_ROOT/licenses/android-googletv-license
+        echo "601085b94cd77f0b54ff86406957099ebe79c4d6" > $ANDROID_SDK_ROOT/licenses/google-gdk-license
+        echo "33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > $ANDROID_SDK_ROOT/licenses/google-gdk-license
+        
+        echo "Android SDK licenses pre-accepted"
+    
     - name: Debug project structure
       run: |
         echo "=== PROJECT STRUCTURE ==="
@@ -51,22 +74,14 @@ jobs:
       run: |
         echo "Starting buildozer build..."
         
-        # Create a simple script to handle the license prompt
-        (
-          sleep 5
-          while true; do
-            echo "y"
-            sleep 2
-          done
-        ) &
-        LICENSE_PID=$!
+        # Set environment variables for auto-acceptance
+        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
+        export ANDROID_HOME=$ANDROID_SDK_ROOT
+        export ANDROID_SDK_ACCEPT_LICENSES=y
         
-        # Start the build with full logging
-        buildozer android debug 2>&1 | tee build_full.log
+        # Start the build with license auto-acceptance
+        yes | buildozer android debug 2>&1 | tee build_full.log
         BUILD_EXIT_CODE=${PIPESTATUS[0]}
-        
-        # Kill the license acceptance process
-        kill $LICENSE_PID 2>/dev/null || true
         
         echo "Build exit code: $BUILD_EXIT_CODE"
         
@@ -77,6 +92,13 @@ jobs:
           echo "❌ BUILD FAILED!"
           echo "=== LAST 100 LINES OF BUILD LOG ==="
           tail -100 build_full.log
+          
+          echo "=== CHECKING FOR LICENSE ISSUES ==="
+          grep -i "license\|accept" build_full.log | tail -20
+          
+          echo "=== ANDROID SDK STATUS ==="
+          ls -la /home/runner/.buildozer/android/platform/android-sdk/ || echo "SDK directory not found"
+          
           exit 1
         fi
     
